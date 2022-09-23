@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { FaImage } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import Layout from "../../../components/Layout";
+import Modal from "../../../components/Modal";
 import styles from "../../../styles/Form.module.css";
 import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
 
 const EdditEventPage = ({ event }) => {
+	console.log(event);
 	const [values, setValues] = useState({
 		name: event.attributes.name,
 		performers: event.attributes.performers,
@@ -17,6 +21,12 @@ const EdditEventPage = ({ event }) => {
 		time: event.attributes.time,
 		description: event.attributes.description,
 	});
+	const [imagePreview, setImagePreview] = useState(() =>
+		event.attributes.image && event.attributes.image.data
+			? event.attributes.image.data.attributes.formats.thumbnail.url
+			: null
+	);
+	const [showModal, setShowModal] = useState(false);
 	const router = useRouter();
 
 	const handleSubmit = async (e) => {
@@ -129,15 +139,33 @@ const EdditEventPage = ({ event }) => {
 				</div>
 				<input type="submit" value="Update Event" className="btn" />
 			</form>
+			<h2>Event Image</h2>
+			{imagePreview ? (
+				<Image src={imagePreview} height={100} width={170} alt="event image" />
+			) : (
+				<div>
+					<p>no image uploaded</p>
+				</div>
+			)}
+			<div>
+				<button className="btn-secondary" onClick={() => setShowModal(true)}>
+					<FaImage /> Set Image
+				</button>
+			</div>
+			<Modal show={showModal} onClose={() => setShowModal(false)}>
+				IMAGE UPLOAD
+			</Modal>
 		</Layout>
 	);
 };
 
 export async function getServerSideProps({ params: { id } }) {
 	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_API_URL}/api/events/${id}`
+		`${process.env.NEXT_PUBLIC_API_URL}/api/events/${id}?populate=image`
 	);
 	const evt = await res.json();
+	console.log({ id });
+	console.log("davaii", evt);
 	return {
 		props: {
 			event: evt.data,
