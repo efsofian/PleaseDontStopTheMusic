@@ -2,19 +2,20 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
-import Layout from "../../components/Layout";
-import styles from "../../styles/Form.module.css";
+import moment from "moment";
+import Layout from "../../../components/Layout";
+import styles from "../../../styles/Form.module.css";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddEventPage = () => {
+const EdditEventPage = ({ event }) => {
 	const [values, setValues] = useState({
-		name: "",
-		performers: "",
-		venue: "",
-		address: "",
-		date: "",
-		time: "",
-		description: "",
+		name: event.attributes.name,
+		performers: event.attributes.performers,
+		venue: event.attributes.venue,
+		address: event.attributes.address,
+		date: event.attributes.date,
+		time: event.attributes.time,
+		description: event.attributes.description,
 	});
 	const router = useRouter();
 
@@ -25,13 +26,16 @@ const AddEventPage = () => {
 			console.log("please fill fields");
 			toast.error("please fill fields");
 		} else {
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ data: values }),
-			});
+			const res = await fetch(
+				`${process.env.NEXT_PUBLIC_API_URL}/api/events/${event.id}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ data: values }),
+				}
+			);
 			if (!res.ok) {
 				toast.error("Something went wrong");
 			} else {
@@ -48,7 +52,7 @@ const AddEventPage = () => {
 	return (
 		<Layout title="Add new Event">
 			<Link href="/events">Go Back</Link>
-			<h1>Add Event</h1>
+			<h1>Eddit Event</h1>
 			<ToastContainer />
 			<form onSubmit={handleSubmit} className={styles.form}>
 				<div className={styles.grid}>
@@ -98,7 +102,7 @@ const AddEventPage = () => {
 							type="date"
 							id="date"
 							name="date"
-							value={values.date}
+							value={moment(values.date).format("yyyy-MM-DD")}
 							onChange={handleInputChange}
 						/>
 					</div>
@@ -123,10 +127,22 @@ const AddEventPage = () => {
 						onChange={handleInputChange}
 					/>
 				</div>
-				<input type="submit" value="Add Event" className="btn" />
+				<input type="submit" value="Update Event" className="btn" />
 			</form>
 		</Layout>
 	);
 };
 
-export default AddEventPage;
+export async function getServerSideProps({ params: { id } }) {
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_URL}/api/events/${id}`
+	);
+	const evt = await res.json();
+	return {
+		props: {
+			event: evt.data,
+		},
+	};
+}
+
+export default EdditEventPage;
