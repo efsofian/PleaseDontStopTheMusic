@@ -5,6 +5,7 @@ import { FaImage } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import Layout from "../../../components/Layout";
+import ImageUpload from "../../../components/ImageUpload";
 import Modal from "../../../components/Modal";
 import styles from "../../../styles/Form.module.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -54,6 +55,17 @@ const EdditEventPage = ({ event }) => {
 				router.push(`/events/${evt.data.attributes.slug}`);
 			}
 		}
+	};
+	const imageUploaded = async (e) => {
+		const res = await fetch(
+			`${process.env.NEXT_PUBLIC_API_URL}/api/events/${event.id}?populate=image`
+		);
+		const data = await res.json();
+		console.log(data.data);
+		setImagePreview(
+			data.data.attributes.image.data.attributes.formats.thumbnail.url
+		);
+		setShowModal(false);
 	};
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -153,7 +165,7 @@ const EdditEventPage = ({ event }) => {
 				</button>
 			</div>
 			<Modal show={showModal} onClose={() => setShowModal(false)}>
-				IMAGE UPLOAD
+				<ImageUpload evtId={event.id} imageUploaded={imageUploaded} />
 			</Modal>
 		</Layout>
 	);
