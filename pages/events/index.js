@@ -3,7 +3,7 @@ import EventItem from "../../components/EventItem";
 import Pagination from "../../components/Pagination";
 import Link from "next/link";
 
-const PER_PAGE = 2;
+const PER_PAGE = 4;
 
 export default function EventPage({ events, page, total }) {
 	return (

@@ -171,7 +171,7 @@ const EdditEventPage = ({ event }) => {
 	);
 };
 
-export async function getServerSideProps({ params: { id } }) {
+export async function getServerSideProps({ params: { id } }, req) {
 	const res = await fetch(
 		`${process.env.NEXT_PUBLIC_API_URL}/api/events/${id}?populate=image`
 	);
